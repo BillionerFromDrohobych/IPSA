@@ -68,9 +68,14 @@ public class SightMenu extends AppCompatActivity implements LocationListener {
         switch (name) {
             case "Kyiv":
 
-                sightList.add(new Sight("Igor Sikorsky Kyiv Polytechnic Institute", R.drawable.unnamed, R.drawable.unnamed, R.drawable.unnamed, "geo:50.454978,30.445443?q=Igor Sikorsky Kyiv Polytechnic Institute", "s", true, "vul. Saint Ostapuchi", 50.454978, 30.445443));
-                sightList.add(new Sight("KPI2", R.drawable.unnamed, R.drawable.unnamed, R.drawable.unnamed, "geo:50.454978,30.445443?q=Igor Sikorsky Kyiv Polytechnic Institute", "s", true, "vul. Saint Ostapuchi", 40.454978, 30.445443));
-                sightList.add(new Sight("KPI3", R.drawable.unnamed, R.drawable.unnamed, R.drawable.unnamed, "geo:50.454978,30.445443?q=Igor Sikorsky Kyiv Polytechnic Institute", "s", true, "vul. Saint Ostapuchi", 10.454978, 20.445443));
+                sightList.add(new Sight("Kyiv Polytechnic Institute", R.drawable.kpi, R.drawable.kpi1, R.drawable.kpi2, "geo:50.454978,30.445443?q=Igor Sikorsky Kyiv Polytechnic Institute", "s", true, "vul. Saint Ostapuchi", 50.454978, 30.445443));
+                sightList.add(new Sight("Maidan Nezalezhnosti", R.drawable.maidan, R.drawable.maidan1, R.drawable.maidan2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
+                sightList.add(new Sight("House with chimeras", R.drawable.chimeras, R.drawable.chimeras1, R.drawable.chimeras2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
+                sightList.add(new Sight("Saint Vladimir Monument", R.drawable.volodya, R.drawable.volodya1, R.drawable.volodya2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
+                sightList.add(new Sight("National Opera of Ukraine", R.drawable.opera, R.drawable.opera1, R.drawable.opera2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
+                sightList.add(new Sight("Golden Gate", R.drawable.gate, R.drawable.gate1, R.drawable.gate2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
+                sightList.add(new Sight("Government of Ukraine", R.drawable.gover, R.drawable.gover1, R.drawable.gover2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
+                sightList.add(new Sight("Mariinsky Park", R.drawable.marij, R.drawable.marij1, R.drawable.marij2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
                 break;
             case "Lviv":
 
@@ -85,6 +90,7 @@ public class SightMenu extends AppCompatActivity implements LocationListener {
         recyclerSightView.setLayoutManager(new GridLayoutManager(this, 1));
         recyclerSightView.setAdapter(recyclerViewSightAdapter);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
 
         editText = findViewById(R.id.editText);
         editText.addTextChangedListener(new TextWatcher() {

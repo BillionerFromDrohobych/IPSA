@@ -1,5 +1,6 @@
 package misterpanchak.com.mapich;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -45,7 +46,6 @@ public class SightActivity extends AppCompatActivity implements View.OnClickList
 
         imageview.setImageResource(imgurl);
         tx3.setText(adress);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         imageView3 = (ImageView) findViewById(R.id.imageView3);
         imageView5 = (ImageView) findViewById(R.id.imageView5);
@@ -80,19 +80,5 @@ public class SightActivity extends AppCompatActivity implements View.OnClickList
                 break;
         }
     }
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.cityactionbar, menu);
 
-        return true;
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == android.R.id.home) {
-            onBackPressed();  return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 }
