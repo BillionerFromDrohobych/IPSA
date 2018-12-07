@@ -1,5 +1,6 @@
 package misterpanchak.com.mapich;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +8,8 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -27,36 +30,29 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.sql.Connection;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SightMenu extends AppCompatActivity implements LocationListener {
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
+public class SightMenu extends AppCompatActivity {
 
 
     List<Sight> sightList;
-    private LocationManager locationManager;
 
     RecyclerViewSightAdapter recyclerViewSightAdapter;
     EditText editText;
-    /* private static final int MY_PERMISSION_REQUEST_CODE = 7172;
-     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 7172;
-     private boolean mRequestLocationUpdates = false;
-     private LocationRequest mLocationRequest;
-     private GoogleApiClient mGoogleApiClient;
-     private Location mLastLocation;
-     private static int UPDATE_INTERVAL = 5000;
-     private static int FATEST_INTERVAL = 3000;
-     private static int DISPLACEMENT =10;
- */
+    private FusedLocationProviderClient mFusedLocationClient;
     RecyclerView recyclerSightView;
-    double mylongtitude = 50.454978;
-    double mylatitude = 30.445443;
-    Location location;
+    double mylongtitude = 0;
+    double mylatitude = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +64,9 @@ public class SightMenu extends AppCompatActivity implements LocationListener {
         switch (name) {
             case "Kyiv":
 
-                sightList.add(new Sight("Kyiv Polytechnic Institute", R.drawable.kpi, R.drawable.kpi1, R.drawable.kpi2, "geo:50.454978,30.445443?q=Igor Sikorsky Kyiv Polytechnic Institute", "s", true, "vul. Saint Ostapuchi", 50.454978, 30.445443));
-                sightList.add(new Sight("Maidan Nezalezhnosti", R.drawable.maidan, R.drawable.maidan1, R.drawable.maidan2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
-                sightList.add(new Sight("House with chimeras", R.drawable.chimeras, R.drawable.chimeras1, R.drawable.chimeras2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
-                sightList.add(new Sight("Saint Vladimir Monument", R.drawable.volodya, R.drawable.volodya1, R.drawable.volodya2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
-                sightList.add(new Sight("National Opera of Ukraine", R.drawable.opera, R.drawable.opera1, R.drawable.opera2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
-                sightList.add(new Sight("Golden Gate", R.drawable.gate, R.drawable.gate1, R.drawable.gate2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
-                sightList.add(new Sight("Government of Ukraine", R.drawable.gover, R.drawable.gover1, R.drawable.gover2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
-                sightList.add(new Sight("Mariinsky Park", R.drawable.marij, R.drawable.marij1, R.drawable.marij2, "geo:49.841562,24.031144?q=Black House", "s", true, "Market Square, 18, Lviv, Lviv Oblast, 79000 ", 49.841562, 24.031144));
+                sightList.add(new Sight("Igor Sikorsky Kyiv Polytechnic Institute", R.drawable.unnamed, R.drawable.unnamed, R.drawable.unnamed, "geo:50.454978,30.445443?q=Igor Sikorsky Kyiv Polytechnic Institute", "s", true, "vul. Saint Ostapuchi", 50.454978, 30.445443));
+                sightList.add(new Sight("KPI2", R.drawable.unnamed, R.drawable.unnamed, R.drawable.unnamed, "geo:50.454978,30.445443?q=Igor Sikorsky Kyiv Polytechnic Institute", "s", true, "vul. Saint Ostapuchi", 40.454978, 30.445443));
+                sightList.add(new Sight("KPI3", R.drawable.unnamed, R.drawable.unnamed, R.drawable.unnamed, "geo:50.454978,30.445443?q=Igor Sikorsky Kyiv Polytechnic Institute", "s", true, "vul. Saint Ostapuchi", 10.454978, 20.445443));
                 break;
             case "Lviv":
 
@@ -85,12 +76,30 @@ public class SightMenu extends AppCompatActivity implements LocationListener {
                 break;
         }
 
+
         recyclerSightView = findViewById(R.id.RecyclerSightView);
         recyclerViewSightAdapter = new RecyclerViewSightAdapter(this, sightList);
         recyclerSightView.setLayoutManager(new GridLayoutManager(this, 1));
         recyclerSightView.setAdapter(recyclerViewSightAdapter);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Intent intent1 = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
 
+        }
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            mylongtitude = location.getLongitude();
+                            mylatitude = location.getLatitude();
+                        }
+                    }
+                });
 
         editText = findViewById(R.id.editText);
         editText.addTextChangedListener(new TextWatcher() {
@@ -108,54 +117,46 @@ public class SightMenu extends AppCompatActivity implements LocationListener {
             public void afterTextChanged(Editable s) {
                 filter(s.toString());
 
-
             }
         });
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        location = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-
-        }
+    }
 
 
+    private void filter(String text) {
+        ArrayList<Sight> filteredList = new ArrayList<>();
+        for (Sight sight : sightList) {
+            if (sight.getName().toLowerCase().contains(text.toLowerCase())) {
+                filteredList.add(sight);
 
-
-
-    private void filter(String text){
-            ArrayList<Sight> filteredList = new ArrayList<>();
-            for (Sight sight : sightList) {
-                if (sight.getName().toLowerCase().contains(text.toLowerCase())) {
-                    filteredList.add(sight);
-
-                }
             }
-            recyclerViewSightAdapter.filteredListed(filteredList);
         }
-        public boolean onCreateOptionsMenu (Menu menu){
-            getMenuInflater().inflate(R.menu.actionbar, menu);
-            return true;
-        }
-        public boolean onOptionsItemSelected (MenuItem item){
-        onLocationChanged(location);
-            int id = item.getItemId();
-           if(id==R.id.analyze) {
+        recyclerViewSightAdapter.filteredListed(filteredList);
+    }
 
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.actionbar, menu);
+        return true;
+    }
 
+    public boolean onOptionsItemSelected(MenuItem item) {
 
+        int id = item.getItemId();
+        if (id == R.id.analyze) {
+            //Toast.makeText(getApplicationContext(), ""+mylongtitude+"\n"+mylatitude, Toast.LENGTH_LONG).show();
+
+            if(mylongtitude<0){
+              mylongtitude = 180 - mylongtitude;
+          }
                ArrayList<Sight> filteredList1 = new ArrayList<>();
                for (Sight sight : sightList) {
+                 double  mylongtitude1 = mylongtitude - sight.getLatitude();
+                  double  mylatitude1 = mylatitude - sight.getLongtitude();
 
-                       if (Math.abs(sight.getLongtitude() - mylongtitude)   < 9 && Math.abs(sight.getLatitude() - mylatitude) < 9) {
+                   Toast.makeText(getApplicationContext(), ""+mylongtitude1+"\n"+mylatitude1, Toast.LENGTH_LONG).show();
+
+
+                       if (Math.abs(sight.getLongtitude() -mylatitude)   < 0.009 && Math.abs(sight.getLatitude() - mylongtitude) < 0.009) {
                            filteredList1.add(sight);
                        }
 
@@ -171,25 +172,6 @@ public class SightMenu extends AppCompatActivity implements LocationListener {
         }
 
 
-    @Override
-    public void onLocationChanged(Location location) {
-         mylatitude = location.getLatitude();
-         mylongtitude = location.getLongitude();
 
-    }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
 }

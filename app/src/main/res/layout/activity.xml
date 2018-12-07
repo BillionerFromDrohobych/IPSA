@@ -13,7 +13,6 @@
         android:id="@+id/editText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="#D5D8DC"
         android:layout_margin="5dp"/>
 
 
